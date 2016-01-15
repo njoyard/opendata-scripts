@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- 
-	Transforme les infos de nosdeputes.fr pour recensement des
-	permanences parlementaires.
+    Transforme les infos de nosdeputes.fr pour recensement des
+    permanences parlementaires.
 
-	Utilisé pour le pad https://pad.lqdn.fr/p/permanences_deputes
+    Utilisé pour le pad https://pad.lqdn.fr/p/permanences_deputes
 -->
 <meta charset="UTF-8" />
 <script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
@@ -11,45 +11,45 @@
 var API = 'https://www.nosdeputes.fr/deputes/enmandat/json';
 
 function comparerNom(a, b) {
-	return a.depute.nom_de_famille.localeCompare(b.depute.nom_de_famille);
+    return a.depute.nom_de_famille.localeCompare(b.depute.nom_de_famille);
 }
 
 $(window).on('load', function() {
-	$(document.body).text('Chargement ' + API);
+    $(document.body).text('Chargement ' + API);
 
-	$.getJSON(API)
-	 .done(function(data) {
-	    var text = data.deputes.sort(comparerNom).map(function(dep) {
-	        var d = dep.depute;
-	        var lines = [
-	            '* ' + d.nom + ' (' + d.groupe_sigle + ')',
-	            d.nom_circo + ' (' + d.num_circo + 'e circonscription)',
-	            d.url_an
-	        ];
+    $.getJSON(API)
+     .done(function(data) {
+        var text = data.deputes.sort(comparerNom).map(function(dep) {
+            var d = dep.depute;
+            var lines = [
+                '* ' + d.nom + ' (' + d.groupe_sigle + ')',
+                d.nom_circo + ' (' + d.num_circo + 'e circonscription)',
+                d.url_an
+            ];
 
-	        d.sites_web.forEach(function(sw) {
-	            lines.push(sw.site);
-	        });
+            d.sites_web.forEach(function(sw) {
+                lines.push(sw.site);
+            });
 
-	        var found = false;
-	        d.adresses.forEach(function(ad) {
-	            if (!(ad.adresse.toLowerCase().match(/^assemblée nationale/))) {
-	                found = true;
-	                lines.push(ad.adresse.replace(/ (Télé(phone|copie) :)/g, '\n$1'));
-	            }
-	        });
+            var found = false;
+            d.adresses.forEach(function(ad) {
+                if (!(ad.adresse.toLowerCase().match(/^assemblée nationale/))) {
+                    found = true;
+                    lines.push(ad.adresse.replace(/ (Télé(phone|copie) :)/g, '\n$1'));
+                }
+            });
 
-	        return lines.join('\n');
-	    }).join('\n\n');
+            return lines.join('\n');
+        }).join('\n\n');
 
-	 	var pre = $('<pre>');
-		pre.text(text);
+         var pre = $('<pre>');
+        pre.text(text);
 
-	 	$(document.body).text("");
-	 	pre.appendTo($(document.body));
-	 })
-	 .fail(function(err) {
-	 	$(document.body).text('Erreur: ' + err);
-	 });
+         $(document.body).text("");
+         pre.appendTo($(document.body));
+     })
+     .fail(function(err) {
+         $(document.body).text('Erreur: ' + err);
+     });
 });
 </script>

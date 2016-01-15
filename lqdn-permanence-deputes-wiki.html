@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <!-- 
-	Transforme les infos de nosdeputes.fr pour recensement des
-	permanences parlementaires.
+    Transforme les infos de nosdeputes.fr pour recensement des
+    permanences parlementaires.
 
-	Utilisé pour le wiki https://wiki.laquadrature.net/Contactez_vos_d%C3%A9put%C3%A9s/Permanences
+    Utilisé pour le wiki https://wiki.laquadrature.net/Contactez_vos_d%C3%A9put%C3%A9s/Permanences
 
-	NOTE: hacké à l'arrache :)
+    NOTE: hacké à l'arrache :)
 
-	Format : 
+    Format : 
 
-		== 01 - Ain ==
+        == 01 - Ain ==
 
-		* Xavier Breton (LES-REP)
-		** Ain (1e circonscription)
-		** http://www2.assemblee-nationale.fr/deputes/fiche/OMC_PA330008
-		** http://www.xavierbreton.fr
-		** https://twitter.com/bretonxavier
-		** 27 Rue du Docteur Hudellet 01000 Bourg-en-Bresse
-		** Téléphone : 04 74 45 02 11
-		** Télécopie : 04 74 22 37 07
+        * Xavier Breton (LES-REP)
+        ** Ain (1e circonscription)
+        ** http://www2.assemblee-nationale.fr/deputes/fiche/OMC_PA330008
+        ** http://www.xavierbreton.fr
+        ** https://twitter.com/bretonxavier
+        ** 27 Rue du Docteur Hudellet 01000 Bourg-en-Bresse
+        ** Téléphone : 04 74 45 02 11
+        ** Télécopie : 04 74 22 37 07
 
 -->
 <meta charset="UTF-8" />
@@ -27,68 +27,68 @@
 var API = 'https://www.nosdeputes.fr/deputes/enmandat/json';
 
 function comparerNom(a, b) {
-	return a.depute.nom_de_famille.localeCompare(b.depute.nom_de_famille);
+    return a.depute.nom_de_famille.localeCompare(b.depute.nom_de_famille);
 }
 
 function compareCirco(a, b) {
-	var result = a.depute.num_deptmt.localeCompare(b.depute.num_deptmt);
+    var result = a.depute.num_deptmt.localeCompare(b.depute.num_deptmt);
 
-	if (result === 0) {
-		result = a.depute.num_circo - b.depute.num_circo;
+    if (result === 0) {
+        result = a.depute.num_circo - b.depute.num_circo;
 
-		if (result === 0) {
-			result = comparerNom(a, b);
-		}
-	}
+        if (result === 0) {
+            result = comparerNom(a, b);
+        }
+    }
 
-	return result;
+    return result;
 }
 
 $(window).on('load', function() {
-	$(document.body).text('Chargement ' + API);
+    $(document.body).text('Chargement ' + API);
 
-	var curDept = '';
-	var depts = {};
+    var curDept = '';
+    var depts = {};
 
-	$.getJSON(API)
-	 .done(function(data) {
-	    data.deputes.sort(compareCirco).map(function(dep) {
-	    	var d = dep.depute;
-	    	var dept = d.num_deptmt + ' - ' + d.nom_circo;
+    $.getJSON(API)
+     .done(function(data) {
+        data.deputes.sort(compareCirco).map(function(dep) {
+            var d = dep.depute;
+            var dept = d.num_deptmt + ' - ' + d.nom_circo;
 
-	    	if (!(dept in depts)) {
-	    		depts[dept] = ['', '== ' + dept + ' ==', ''];
-	    	}
+            if (!(dept in depts)) {
+                depts[dept] = ['', '== ' + dept + ' ==', ''];
+            }
 
-	        depts[dept].push('* ' + d.nom + ' (' + d.groupe_sigle + ')');
-	        depts[dept].push('** ' + d.nom_circo + ' (' + d.num_circo + 'e circonscription)');
-	        depts[dept].push('** ' + d.url_an);
+            depts[dept].push('* ' + d.nom + ' (' + d.groupe_sigle + ')');
+            depts[dept].push('** ' + d.nom_circo + ' (' + d.num_circo + 'e circonscription)');
+            depts[dept].push('** ' + d.url_an);
 
-	        d.sites_web.forEach(function(sw) {
-	            depts[dept].push('** ' + sw.site);
-	        });
+            d.sites_web.forEach(function(sw) {
+                depts[dept].push('** ' + sw.site);
+            });
 
-	        d.adresses.forEach(function(ad) {
-	            if (!(ad.adresse.toLowerCase().match(/^assemblée nationale/))) {
-	                depts[dept].push('** ' + ad.adresse.replace(/ (Télé(phone|copie) :)/g, '\n** $1'));
-	            }
-	        });
+            d.adresses.forEach(function(ad) {
+                if (!(ad.adresse.toLowerCase().match(/^assemblée nationale/))) {
+                    depts[dept].push('** ' + ad.adresse.replace(/ (Télé(phone|copie) :)/g, '\n** $1'));
+                }
+            });
 
-	        depts[dept].push("");
-	    });
+            depts[dept].push("");
+        });
 
-	    var text = Object.keys(depts).reduce(function(text, key) {
-	    	return text + depts[key].join('\n');
-	    }, "");
+        var text = Object.keys(depts).reduce(function(text, key) {
+            return text + depts[key].join('\n');
+        }, "");
 
-	 	var pre = $('<pre>');
-		pre.text(text);
+         var pre = $('<pre>');
+        pre.text(text);
 
-	 	$(document.body).text("");
-	 	pre.appendTo($(document.body));
-	 })
-	 .fail(function(err) {
-	 	$(document.body).text('Erreur: ' + err);
-	 });
+         $(document.body).text("");
+         pre.appendTo($(document.body));
+     })
+     .fail(function(err) {
+         $(document.body).text('Erreur: ' + err);
+     });
 });
 </script>

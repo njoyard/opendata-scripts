@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<!-- 
+    Transforme les infos de nossenateurs.fr pour recherche des sénateurs appartenant à une commission
+-->
+<meta charset="UTF-8" />
+<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script>
+var API = 'https://www.nossenateurs.fr/senateurs/enmandat/json';
+
+
+
+function comparerNom(a, b) {
+    return a.depute.nom_de_famille.localeCompare(b.depute.nom_de_famille);
+}
+function compareCirco(a, b) {
+    var result = a.depute.num_deptmt.localeCompare(b.depute.num_deptmt);
+    if (result === 0) {
+        result = a.depute.num_circo - b.depute.num_circo;
+        if (result === 0) {
+            result = comparerNom(a, b);
+        }
+    }
+    return result;
+}
+
+var signataires = ["Laurence ADRIEN-BIGEON", "Cécile ALVERGNAT", "Camille AMIAUD", "Fatimata AMY", "Beaudouin AUBRET", "Bernard AUDOIN", "Jean-Claude BACHELOT", "Jean-Paul BAQUIAST", "Michel BAUJARD", "Nicolas BAYS", "Frédéric BEATSE", "Martin BUSSY", "Monique BELLANGER-HOUDEBINE", "Jean-Louis BELLIARD", "Luc BELOT", "François BENOITON", "Grégory BLANC", "Christophe BOUJON", "Brigitte BOURGUIGNON", "Nicolas BRIEN", "Michel BRILLOT", "Claude BRISSAUD", "Benjamin BUSSON", "Mathias CADOT", "Silvia CAMARA-TOMBINI", "Matthieu CAMUS", "Rachel CAPRON", "Nicolas CHAGNY", "Louis-Guy CHARGELEGUE", "Martine CHARGELEGUE", "Patrick CHEVALIER", "Jean-Marc CHIRON", "Christophe CLERGEAU", "Thianar CISSE", "Gérard DANTEC", "Marie-Claude DE RE", "Maxime DES GAYETS", "Anthony DESCLOZIERS", "Yvelise DRAPPIER", "Jordan ESNAULT", "Frédérique ESPAGNAC", "Carole FIANI", "Michel FORGEAU", "Sophie FOUCHER-MAILLARD", "Hugues FOURAGE", "Aykel GARBAA", "Philippe GAUDIN", "Jean-Noël GAULTIER", "Daniel GAUTREAU", "Amandine GAZEAU", "Jacky GLEDEL", "Michel GOISLARD", "Marc GOUA", "Jean GOUDMAND", "Patrick GUEDJ", "Françoise HAMEON GENTIL", "Razzy HAMMADI", "Thierry HAMON", "Jean-Christophe HENRARD", "Véronique HENRY", "Christophe HERVOUET", "Arnaud HIE", "Valérie HIE", "Michel HOUDBINE", "Olivier HUNAULT", "Sylvaine HUNAULT", "Stéphane IBARRA", "Abdou JAMIL", "Catherine JAMIL", "Emile JOSSELIN", "Jean-Baptiste LALANNE", "Pierre LAUGERY", "Evelyne LE FLOCH", "Jean-Pierre LE SCORNET", "Renaud LEMAIRE", "Claudine LEPAGE", "Louis LEPIOUPLE", "Patrick LEGEAY", "Nicolas LE ROUX", "Caroline LEDERLE", "Clément LETHIELLEUX", "Carole LEWIS", "Sebastien LEWIS", "Denis LIBEAU", "Yannick LOCHARD", "Martine LONG", "Ludovic LUTRAND", "André MARCHAND", "Baptiste MASCARO", "Matthieu MAYER", "Norma MEVEL PLA", "Patrice NEAU", "Pascal NICOLLE", "Lucie MAIQUES GRYNBAUM", "Moncef NOUICER", "Jean-Paul OLIVARES", "Christophe OUEDRAOGO", "Ludovic PERAN", "Christophe PREMAT", "Anne-Marie PRINET", "Alain PRYET", "Valérie RADUTI", "Monique RAMOGNINO", "Daniel RAOUL", "Fabienne RENAUD", "David ROUSSEAU", "Gilles SAMSON", "Rachel SANTENAC", "Mongia SASSI", "Dominique SEGURA", "Joël SOULARD", "Jean-Baptiste TAILLANDIER", "Antony TAILLEFAIT", "Luc TAPIE", "Christine TELLIER", "Pascal TERRASSE", "Georges TERRIER", "Jean-Marc VACHER", "Olivier VAILLANT", "Soline VAILLANT", "Marie VANDOMME", "Claude VAUGOYEAU", "Fabrice VILLECHIEN"].map(function(nom) { return nom.toLowerCase(); });
+
+
+$(window).on('load', function() {
+    $(document.body).text('Chargement ' + API);
+    var curDept = '';
+    var depts = {};
+    $.getJSON(API)
+     .done(function(data) {
+     	data.senateurs.forEach(function(sen) {
+     		var s = sen.senateur;
+
+     		if (signataires.indexOf(s.nom.toLowerCase()) !== -1) 
+     		{
+     			$.getJSON(s.url_nossenateurs_api)
+     			.done(function(sdata){
+	     			var pre = $('<pre>');
+	     			var text = s.nom + "\n" + s.url_nossenateurs + "\n" +
+		     		sdata.senateur.responsabilites.map(function(r) {
+		     				return r.responsabilite.organisme;
+	     				}).join(', ');
+
+		     		pre.text(text);
+	     			pre.appendTo($(document.body));
+     			});
+     		}
+     	});
+     });
+
+  });
+</script>
